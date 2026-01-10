@@ -30,7 +30,7 @@ public class Product {
     private String description;
 
     // many products to one category
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "category_id") // foreign key
     private Category category;
 
