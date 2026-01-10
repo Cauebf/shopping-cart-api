@@ -27,7 +27,7 @@ import com.github.cauebf.shoppingcartapi.response.ApiResponse;
 import com.github.cauebf.shoppingcartapi.service.image.IImageService;
 
 @RestController
-@RequestMapping("${api.prefix}/images")
+@RequestMapping("/images")
 public class ImageController {
     private final IImageService imageService;
 

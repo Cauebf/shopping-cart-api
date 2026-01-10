@@ -20,7 +20,7 @@ import com.github.cauebf.shoppingcartapi.response.ApiResponse;
 import com.github.cauebf.shoppingcartapi.service.category.ICategoryService;
 
 @RestController
-@RequestMapping("${api.prefix}/categories")
+@RequestMapping("/categories")
 public class CategoryController {
     private final ICategoryService categoryService;
 

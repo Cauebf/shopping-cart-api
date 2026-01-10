@@ -17,23 +17,34 @@ import com.github.cauebf.shoppingcartapi.request.ProductUpdateRequest;
 public class ProductService implements IProductService {
 
     private final ProductRepository productRepository;
-    private final CategoryRepository CategoryRepository;
+    private final CategoryRepository categoryRepository;
 
     public ProductService(ProductRepository productRepository, CategoryRepository CategoryRepository) {
         // construtor dependency injection
         this.productRepository = productRepository; 
-        this.CategoryRepository = CategoryRepository;
+        this.categoryRepository = CategoryRepository;
+    }
+
+    @Override
+    public List<Product> getProducts(String name, String brand, String category) {
+        return productRepository.findProductsByOptionalFilters(name, brand, category);
+    }
+    
+    @Override
+    public Product getProductById(Long id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found!"));
     }
 
     @Override
     public Product addProduct(AddProductRequest request) {
         // check if the category is found in the DB
         // if yes, set it as the new product category, if not, save it as a new category
-        Category category = Optional.ofNullable(CategoryRepository.findByName(request.getCategory().getName()))
+        Category category = Optional.ofNullable(categoryRepository.findByName(request.getCategory().getName()))
                 .orElseGet(() -> {
                     // if not found, create a new category
                     Category newCategory = new Category(request.getCategory().getName()); 
-                    return CategoryRepository.save(newCategory); // save the new category to the DB
+                    return categoryRepository.save(newCategory); // save the new category to the DB
                 });
         request.setCategory(category); 
         return productRepository.save(createProduct(request, category)); // save the new product to the DB
@@ -48,12 +59,6 @@ public class ProductService implements IProductService {
             request.getDescription(),
             category
         );
-    }
-
-    @Override
-    public Product getProductById(Long id) {
-        return productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found!"));
     }
 
     @Override
@@ -78,44 +83,13 @@ public class ProductService implements IProductService {
         existingProduct.setInventory(request.getInventory());
         existingProduct.setDescription(request.getDescription());
         
-        Category category = CategoryRepository.findByName(request.getCategory().getName());
+        Category category = categoryRepository.findByName(request.getCategory().getName());
         existingProduct.setCategory(category);
         return existingProduct;
     }
 
     @Override
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
-    }
-
-    @Override
-    public List<Product> getProductsByCategory(String category) {
-        return productRepository.findByCategoryName(category);
-    }
-
-    @Override
-    public List<Product> getProductsByBrand(String brand) {
-        return productRepository.findByBrand(brand);
-    }
-
-    @Override
-    public List<Product> getProductsByCategoryAndBrand(String category, String brand) {
-        return productRepository.findByCategoryNameAndBrand(category, brand);
-    }
-
-    @Override
-    public List<Product> getProductsByName(String name) {
-        return productRepository.findByName(name);
-    }
-
-    @Override
-    public List<Product> getProductsByBrandAndName(String brand, String name) {
-        return productRepository.findByBrandAndName(brand, name);
-    }
-
-    @Override
-    public Long countProductsByBrandAndName(String brand, String name) {
-        return productRepository.countByBrandAndName(brand, name);
-    }
-    
+    public Long countProducts(String name, String brand, String category) {
+        return productRepository.countProductsByOptionalFilters(name, brand, category);
+    }    
 }
