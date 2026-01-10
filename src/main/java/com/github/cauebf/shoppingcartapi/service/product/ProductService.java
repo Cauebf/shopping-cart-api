@@ -5,8 +5,8 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.github.cauebf.shoppingcartapi.exceptions.ProductNotFoundException;
 import com.github.cauebf.shoppingcartapi.model.Product;
+import com.github.cauebf.shoppingcartapi.exceptions.ResourceNotFoundException;
 import com.github.cauebf.shoppingcartapi.model.Category;
 import com.github.cauebf.shoppingcartapi.repository.CategoryRepository;
 import com.github.cauebf.shoppingcartapi.repository.ProductRepository;
@@ -53,14 +53,14 @@ public class ProductService implements IProductService {
     @Override
     public Product getProductById(Long id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found!"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found!"));
     }
 
     @Override
     public void deleteProductById(Long id) {
         productRepository.findById(id)
                 .ifPresentOrElse(productRepository::delete, // if found, delete
-                    () -> {throw new ProductNotFoundException("Product not found!");});; // if not found, throw exception
+                    () -> {throw new ResourceNotFoundException("Product not found!");});; // if not found, throw exception
     }
 
     @Override
@@ -68,7 +68,7 @@ public class ProductService implements IProductService {
         return productRepository.findById(productId)
                 .map(existingProduct -> updateExistingProduct(existingProduct, request)) // if found, update
                 .map(productRepository::save) // save the updated product to the DB
-                .orElseThrow(() -> new ProductNotFoundException("Product not found!")); // if not found, throw exception
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found!")); // if not found, throw exception
     }
 
     private Product updateExistingProduct(Product existingProduct, ProductUpdateRequest request) {
