@@ -2,6 +2,7 @@ package com.github.cauebf.shoppingcartapi.service.category;
 
 import java.util.List;
 
+import com.github.cauebf.shoppingcartapi.dto.CategoryDto;
 import com.github.cauebf.shoppingcartapi.model.Category;
 
 public interface ICategoryService {
@@ -11,4 +12,6 @@ public interface ICategoryService {
     Category addCategory(Category category);
     Category updateCategory(Category category, Long id);
     void deleteCategoryById(Long id);
+    CategoryDto convertToDto(Category category);
+    List<CategoryDto> getConvertedCategories(List<Category> categories);
 }

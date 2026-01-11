@@ -2,9 +2,10 @@ package com.github.cauebf.shoppingcartapi.service.category;
 
 import java.util.List;
 import java.util.Optional;
-
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import com.github.cauebf.shoppingcartapi.dto.CategoryDto;
 import com.github.cauebf.shoppingcartapi.exceptions.AlreadyExistsException;
 import com.github.cauebf.shoppingcartapi.exceptions.ResourceNotFoundException;
 import com.github.cauebf.shoppingcartapi.model.Category;
@@ -14,10 +15,12 @@ import com.github.cauebf.shoppingcartapi.repository.CategoryRepository;
 public class CategoryService implements ICategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final ModelMapper modelMapper;
 
-    public CategoryService(CategoryRepository categoryRepository) {
+    public CategoryService(CategoryRepository categoryRepository, ModelMapper modelMapper) {
         // construtor dependency injection
-        this.categoryRepository = categoryRepository; 
+        this.categoryRepository = categoryRepository;
+        this.modelMapper = modelMapper; 
     }
 
     @Override
@@ -61,5 +64,14 @@ public class CategoryService implements ICategoryService {
             throw new ResourceNotFoundException("Category not found!");
         });
     }
+
+    @Override
+    public List<CategoryDto> getConvertedCategories(List<Category> categories) {
+        return categories.stream().map(this::convertToDto).toList(); // return the list of categories to DTO
+    }
     
+    @Override
+    public CategoryDto convertToDto(Category category) {
+        return modelMapper.map(category, CategoryDto.class); // convert the category to DTO
+    }
 }
