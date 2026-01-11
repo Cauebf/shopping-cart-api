@@ -2,6 +2,7 @@ package com.github.cauebf.shoppingcartapi.service.product;
 
 import java.util.List;
 
+import com.github.cauebf.shoppingcartapi.dto.ProductDto;
 import com.github.cauebf.shoppingcartapi.model.Product;
 import com.github.cauebf.shoppingcartapi.request.AddProductRequest;
 import com.github.cauebf.shoppingcartapi.request.ProductUpdateRequest;
@@ -13,4 +14,6 @@ public interface IProductService {
     void deleteProductById(Long id);
     Product updateProduct(ProductUpdateRequest product, Long productId);
     Long countProducts(String name, String brand, String category);
+    ProductDto convertToDto(Product product);
+    List<ProductDto> getConvertedProducts(List<Product> products);
 }
