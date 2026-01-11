@@ -69,8 +69,8 @@ public class ImageService implements IImageService {
 
                 // create a DTO to return minimal info to the client
                 ImageDto imageDto = new ImageDto();
-                imageDto.setImageId(savedImage.getId());
-                imageDto.setImageName(savedImage.getFileName());
+                imageDto.setId(savedImage.getId());
+                imageDto.setFileName(savedImage.getFileName());
                 imageDto.setDownloadUrl(savedImage.getDownloadUrl());
                 savedImageDto.add(imageDto); // add the DTO to the response list
             } catch (IOException | SQLException e) {
