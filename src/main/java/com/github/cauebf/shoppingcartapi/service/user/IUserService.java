@@ -7,6 +7,6 @@ import com.github.cauebf.shoppingcartapi.request.UpdateUserRequest;
 public interface IUserService {
     User getUserById(Long userId);
     User createUser(CreateUserRequest request);
-    User updateUser(UpdateUserRequest request, Long userId);
+    User updateUser(Long userId, UpdateUserRequest request);
     void deleteUser(Long userId);
 }
