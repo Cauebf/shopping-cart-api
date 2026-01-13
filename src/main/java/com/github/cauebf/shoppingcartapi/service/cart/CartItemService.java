@@ -1,7 +1,9 @@
 package com.github.cauebf.shoppingcartapi.service.cart;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import com.github.cauebf.shoppingcartapi.dto.CartItemDto;
 import com.github.cauebf.shoppingcartapi.exceptions.ResourceNotFoundException;
 import com.github.cauebf.shoppingcartapi.model.Cart;
 import com.github.cauebf.shoppingcartapi.model.CartItem;
@@ -14,12 +16,19 @@ public class CartItemService implements ICartItemService {
     private final IProductService productService;
     private final ICartService cartService;
     private final CartRepository cartRepository;
+    private final ModelMapper modelMapper;
 
-    public CartItemService(IProductService productService, ICartService cartService, CartRepository cartRepository) {
+    public CartItemService(
+        IProductService productService, 
+        ICartService cartService, 
+        CartRepository cartRepository, 
+        ModelMapper modelMapper
+    ) {
         // construtor dependency injection
         this.productService = productService;
         this.cartService = cartService;
         this.cartRepository = cartRepository;
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -58,5 +67,10 @@ public class CartItemService implements ICartItemService {
         cart.removeItem(productId);
 
         cartRepository.save(cart);
+    }
+
+    @Override
+    public CartItemDto convertToDto(CartItem cartItem) {
+        return modelMapper.map(cartItem, CartItemDto.class);
     }
 }

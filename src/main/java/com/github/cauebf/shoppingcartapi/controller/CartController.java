@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.github.cauebf.shoppingcartapi.dto.CartDto;
 import com.github.cauebf.shoppingcartapi.exceptions.ResourceNotFoundException;
 import com.github.cauebf.shoppingcartapi.model.Cart;
 import com.github.cauebf.shoppingcartapi.response.ApiResponse;
@@ -27,7 +28,9 @@ public class CartController {
     public ResponseEntity<ApiResponse> getCart(@PathVariable Long id) {
         try {
             Cart cart = cartService.getCart(id);
-            return ResponseEntity.ok(new ApiResponse("Cart found!", cart));
+            CartDto cartDto = cartService.convertToDto(cart);
+
+            return ResponseEntity.ok(new ApiResponse("Cart found!", cartDto));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
         }
