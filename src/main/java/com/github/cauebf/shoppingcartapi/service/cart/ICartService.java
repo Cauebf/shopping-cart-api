@@ -8,4 +8,5 @@ public interface ICartService {
     void clearCart(Long id);
     void deleteCart(Long id);
     CartDto convertToDto(Cart cart);
+    Cart getCartByUserId(Long userId);
 }
