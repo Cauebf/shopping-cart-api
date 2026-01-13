@@ -2,8 +2,10 @@ package com.github.cauebf.shoppingcartapi.service.user;
 
 import java.util.Optional;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import com.github.cauebf.shoppingcartapi.dto.UserDto;
 import com.github.cauebf.shoppingcartapi.exceptions.AlreadyExistsException;
 import com.github.cauebf.shoppingcartapi.exceptions.ResourceNotFoundException;
 import com.github.cauebf.shoppingcartapi.model.User;
@@ -13,12 +15,13 @@ import com.github.cauebf.shoppingcartapi.request.UpdateUserRequest;
 
 @Service
 public class UserService implements IUserService {
-
     private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, ModelMapper modelMapper) {
         // construtor dependency injection
         this.userRepository = userRepository;
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -61,4 +64,8 @@ public class UserService implements IUserService {
         });
     }
     
+    @Override
+    public UserDto convertToDto(User user) {
+        return modelMapper.map(user, UserDto.class); // convert the user to DTO
+    }
 }

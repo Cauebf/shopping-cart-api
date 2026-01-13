@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.github.cauebf.shoppingcartapi.dto.UserDto;
 import com.github.cauebf.shoppingcartapi.exceptions.AlreadyExistsException;
 import com.github.cauebf.shoppingcartapi.exceptions.ResourceNotFoundException;
 import com.github.cauebf.shoppingcartapi.model.User;
@@ -33,7 +34,9 @@ public class UserController {
     public ResponseEntity<ApiResponse> getUserById(@PathVariable Long userId) {
         try {
             User user = userService.getUserById(userId);
-            return ResponseEntity.ok(new ApiResponse("User found!", user));
+            UserDto userDto = userService.convertToDto(user);
+
+            return ResponseEntity.ok(new ApiResponse("User found!", userDto));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
         }
@@ -43,7 +46,9 @@ public class UserController {
     public ResponseEntity<ApiResponse> createUser(@RequestBody CreateUserRequest request) {
         try {
             User user = userService.createUser(request);
-            return ResponseEntity.ok(new ApiResponse("User created!", user));
+            UserDto userDto = userService.convertToDto(user);
+
+            return ResponseEntity.ok(new ApiResponse("User created!", userDto));
         } catch (AlreadyExistsException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse(e.getMessage(), null));
         }
@@ -52,8 +57,10 @@ public class UserController {
     @PutMapping("/{userId}")
     public ResponseEntity<ApiResponse> updateUser(@PathVariable Long userId, @RequestBody UpdateUserRequest request) {
         try {
-            User updatedUser = userService.updateUser(userId, request);
-            return ResponseEntity.ok(new ApiResponse("User updated!", updatedUser));
+            User user = userService.updateUser(userId, request);
+            UserDto userDto = userService.convertToDto(user);
+            
+            return ResponseEntity.ok(new ApiResponse("User updated!", userDto));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
         }
