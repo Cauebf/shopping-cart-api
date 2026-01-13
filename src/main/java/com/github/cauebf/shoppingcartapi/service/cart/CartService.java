@@ -29,7 +29,8 @@ public class CartService implements ICartService {
     @Override
     public void clearCart(Long id) {
         Cart cart = getCart(id);
-        cart.clear();
+        cart.getItems().clear(); // clear the cart
+        cart.recalculateTotal();
         cartRepository.save(cart);
     }
 

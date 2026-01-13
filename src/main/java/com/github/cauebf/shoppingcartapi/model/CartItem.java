@@ -43,17 +43,7 @@ public class CartItem {
     }
 
     public void increaseQuantity(int amount) {
-        if (amount <= 0) {
-            throw new IllegalArgumentException("Quantity must be positive");
-        }
         this.quantity += amount;
-    }
-
-    public void updateQuantity(int quantity) {
-        if (quantity <= 0) {
-            throw new IllegalArgumentException("Quantity must be positive");
-        }
-        this.quantity = quantity;
     }
 
     public BigDecimal getTotalPrice() {

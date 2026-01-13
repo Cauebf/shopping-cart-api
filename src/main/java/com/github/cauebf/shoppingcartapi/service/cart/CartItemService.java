@@ -1,5 +1,7 @@
 package com.github.cauebf.shoppingcartapi.service.cart;
 
+import java.util.Optional;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -34,39 +36,67 @@ public class CartItemService implements ICartItemService {
     @Override
     public CartItem getCartItem(Long cartId, Long productId) {
         Cart cart = cartService.getCart(cartId);
-        return cart.getItems()
-                .stream()
-                .filter(item -> item.getProduct().getId().equals(productId)) // for each cart item, if the product ID matches, return it
-                .findFirst() 
-                .orElseThrow(() -> new ResourceNotFoundException("Cart item not found!")); // if not found, throw an exception
+        return findItem(cart, productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart item not found!")); 
     }
 
     @Override
      public void addCartItem(Long cartId, Long productId, int quantity) {
+        if (quantity <= 0) throw new IllegalArgumentException("Quantity must be positive");
+
         Cart cart = cartService.getCart(cartId);
-        Product product = productService.getProductById(productId);
+        Optional<CartItem> existingItem = findItem(cart, productId);
 
-        cart.addItem(product, quantity);
+        CartItem item;
+        if (existingItem.isPresent()) {
+            // if the product is already in the cart, increase the quantity
+            item = existingItem.get();
+            item.increaseQuantity(quantity);
+        } else {
+            // if the product is not in the cart, create a new cart item and add it
+            Product product = productService.getProductById(productId);
+            item = new CartItem(product, cart);
+            item.increaseQuantity(quantity);
+            cart.getItems().add(item);
+        }
 
+        cart.recalculateTotal();
         cartRepository.save(cart);
     }
 
     @Override
     public void updateItemQuantity(Long cartId, Long productId, int quantity) {
         Cart cart = cartService.getCart(cartId);
+        CartItem item = findItem(cart, productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart item not found!"));
+        
+        if (quantity <= 0) {
+            // if the quantity is 0 or less, remove the item from the cart
+            cart.getItems().remove(item);
+        } else {
+            // if the quantity is greater than 0, update the quantity
+            item.setQuantity(quantity);
+        }
 
-        cart.updateItemQuantity(productId, quantity);
-
+        cart.recalculateTotal();
         cartRepository.save(cart);
     }
 
     @Override
     public void removeItemFromCart(Long cartId, Long productId) {
         Cart cart = cartService.getCart(cartId);
+        CartItem item = findItem(cart, productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart item not found!"));
 
-        cart.removeItem(productId);
-
+        cart.getItems().remove(item); // remove the item from the cart
+        cart.recalculateTotal();
         cartRepository.save(cart);
+    }
+
+    private Optional<CartItem> findItem(Cart cart, Long productId) {
+        return cart.getItems().stream()
+                .filter(item -> item.getProduct().getId().equals(productId)) // check if the product exists in the cart
+                .findFirst();
     }
 
     @Override
