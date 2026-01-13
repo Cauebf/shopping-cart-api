@@ -46,6 +46,8 @@ public class OrderService implements IOrderService {
     public OrderDto placeOrder(Long userId) {
         Cart cart = cartService.getCartByUserId(userId);
 
+        if (cart.getItems().isEmpty()) throw new IllegalArgumentException("Cart is empty!");
+        
         Order order = createOrder(cart);
         List<OrderItem> orderItems = createOrderItems(order, cart);
 

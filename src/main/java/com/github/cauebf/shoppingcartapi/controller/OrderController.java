@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.cauebf.shoppingcartapi.dto.OrderDto;
@@ -35,8 +36,8 @@ public class OrderController {
         }
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<ApiResponse> getOrderByUserId(@PathVariable Long userId) {
+    @GetMapping
+    public ResponseEntity<ApiResponse> getOrderByUserId(@RequestParam Long userId) {
         try {
             List<OrderDto> orders = orderService.getUserOrders(userId);
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Order found!", orders));
@@ -45,8 +46,8 @@ public class OrderController {
         }
     }
 
-    @PostMapping("/user/{userId}")
-    public ResponseEntity<ApiResponse> createOrder(@PathVariable Long userId) {
+    @PostMapping
+    public ResponseEntity<ApiResponse> createOrder(@RequestParam Long userId) {
         try {
             OrderDto order = orderService.placeOrder(userId);
             return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("Order created!", order));

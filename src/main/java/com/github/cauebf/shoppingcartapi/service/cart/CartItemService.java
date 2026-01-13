@@ -41,8 +41,12 @@ public class CartItemService implements ICartItemService {
     }
 
     @Override
-     public void addCartItem(Long cartId, Long productId, int quantity) {
+     public void addItemToCart(Long cartId, Long productId, int quantity) {
         if (quantity <= 0) throw new IllegalArgumentException("Quantity must be positive");
+
+        Product product = productService.getProductById(productId);
+        
+        if (quantity > product.getInventory()) throw new IllegalArgumentException("Product inventory is not enough");
 
         Cart cart = cartService.getCart(cartId);
         Optional<CartItem> existingItem = findItem(cart, productId);
@@ -51,10 +55,15 @@ public class CartItemService implements ICartItemService {
         if (existingItem.isPresent()) {
             // if the product is already in the cart, increase the quantity
             item = existingItem.get();
+
+            if (item.getQuantity() + quantity > product.getInventory()) {
+                // if the new quantity is greater than the product inventory, throw an exception
+                throw new IllegalArgumentException("Product inventory is not enough");
+            }
+
             item.increaseQuantity(quantity);
         } else {
             // if the product is not in the cart, create a new cart item and add it
-            Product product = productService.getProductById(productId);
             item = new CartItem(product, cart);
             item.increaseQuantity(quantity);
             cart.getItems().add(item);
