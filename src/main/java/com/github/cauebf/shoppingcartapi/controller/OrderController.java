@@ -8,11 +8,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.github.cauebf.shoppingcartapi.dto.OrderDto;
 import com.github.cauebf.shoppingcartapi.exceptions.ResourceNotFoundException;
-import com.github.cauebf.shoppingcartapi.model.Order;
 import com.github.cauebf.shoppingcartapi.response.ApiResponse;
 import com.github.cauebf.shoppingcartapi.service.order.IOrderService;
 
@@ -29,7 +28,7 @@ public class OrderController {
     @GetMapping("/{orderId}")
     public ResponseEntity<ApiResponse> getOrderById(@PathVariable Long orderId) {
         try {
-            Order order = orderService.getOrder(orderId);
+            OrderDto order = orderService.getOrder(orderId);
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Order found!", order));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
@@ -39,17 +38,17 @@ public class OrderController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<ApiResponse> getOrderByUserId(@PathVariable Long userId) {
         try {
-            List<Order> order = orderService.getUserOrders(userId);
-            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Order found!", order));
+            List<OrderDto> orders = orderService.getUserOrders(userId);
+            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Order found!", orders));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
         }
     }
 
-    @PostMapping
-    public ResponseEntity<ApiResponse> createOrder(@RequestParam Long userId) {
+    @PostMapping("/user/{userId}")
+    public ResponseEntity<ApiResponse> createOrder(@PathVariable Long userId) {
         try {
-            Order order = orderService.placeOrder(userId);
+            OrderDto order = orderService.placeOrder(userId);
             return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("Order created!", order));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(), null));

@@ -11,5 +11,4 @@ import com.github.cauebf.shoppingcartapi.model.Order;
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
     List<Order> findByUserId(Long userId);
-
 } 

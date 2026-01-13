@@ -5,9 +5,11 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.github.cauebf.shoppingcartapi.dto.OrderDto;
 import com.github.cauebf.shoppingcartapi.enums.OrderStatus;
 import com.github.cauebf.shoppingcartapi.exceptions.ResourceNotFoundException;
 import com.github.cauebf.shoppingcartapi.model.Cart;
@@ -24,17 +26,24 @@ public class OrderService implements IOrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final ICartService cartService;
+    private final ModelMapper modelMapper;
 
-    public OrderService(OrderRepository orderRepository, ProductRepository productRepository, ICartService cartService) {
+    public OrderService(
+        OrderRepository orderRepository, 
+        ProductRepository productRepository, 
+        ICartService cartService, 
+        ModelMapper modelMapper
+    ) {
         // construtor dependency injection
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
         this.cartService = cartService;
+        this.modelMapper = modelMapper;
     }
 
     @Transactional // if something goes wrong, the transaction will be rolled back
     @Override
-    public Order placeOrder(Long userId) {
+    public OrderDto placeOrder(Long userId) {
         Cart cart = cartService.getCartByUserId(userId);
 
         Order order = createOrder(cart);
@@ -45,7 +54,7 @@ public class OrderService implements IOrderService {
         Order savedOrder = orderRepository.save(order); // save the order to the db
 
         cartService.clearCart(cart.getId()); // clear the cart
-        return savedOrder;
+        return convertToDto(savedOrder);
     }
 
     private Order createOrder(Cart cart) {
@@ -85,13 +94,19 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public Order getOrder(Long orderId) {
-        return orderRepository.findById(orderId)
+    public OrderDto getOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found!"));
+        return convertToDto(order);
     }
     
     @Override
-    public List<Order> getUserOrders(Long userId) {
-        return orderRepository.findByUserId(userId);
+    public List<OrderDto> getUserOrders(Long userId) {
+        List<Order> orders = orderRepository.findByUserId(userId);
+        return orders.stream().map(this::convertToDto).toList();
+    }
+
+    private OrderDto convertToDto(Order order) {
+        return modelMapper.map(order, OrderDto.class);
     }
 }
