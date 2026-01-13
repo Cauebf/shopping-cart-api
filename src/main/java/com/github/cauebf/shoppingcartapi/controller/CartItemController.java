@@ -47,7 +47,7 @@ public class CartItemController {
             cartItemService.addCartItem(cartId, productId, quantity);
             return ResponseEntity.ok(new ApiResponse("Cart item added successfully!", null));
         } catch (ResourceNotFoundException | IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage(), null));
         }
     }
 
