@@ -70,8 +70,8 @@ public class CartItemController {
         try {
             cartItemService.updateItemQuantity(cartId, productId, quantity);
             return ResponseEntity.ok(new ApiResponse("Cart item updated successfully!", null));
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
+        } catch (ResourceNotFoundException | IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage(), null));
         }
     }
 

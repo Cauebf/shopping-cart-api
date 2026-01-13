@@ -56,10 +56,9 @@ public class CartItemService implements ICartItemService {
             // if the product is already in the cart, increase the quantity
             item = existingItem.get();
 
-            if (item.getQuantity() + quantity > product.getInventory()) {
-                // if the new quantity is greater than the product inventory, throw an exception
+            // check if the new quantity is greater than the product inventory
+            if (item.getQuantity() + quantity > product.getInventory())
                 throw new IllegalArgumentException("Product inventory is not enough");
-            }
 
             item.increaseQuantity(quantity);
         } else {
@@ -83,7 +82,11 @@ public class CartItemService implements ICartItemService {
             // if the quantity is 0 or less, remove the item from the cart
             cart.getItems().remove(item);
         } else {
-            // if the quantity is greater than 0, update the quantity
+            // check if the quantity is greater than the product inventory
+            if (quantity > item.getProduct().getInventory())
+                throw new IllegalArgumentException("Product inventory is not enough");
+            
+            // if the quantity is greater than 0 and <= the product inventory, update the quantity
             item.setQuantity(quantity);
         }
 
