@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.cauebf.shoppingcartapi.dto.ProductDto;
+import com.github.cauebf.shoppingcartapi.exceptions.AlreadyExistsException;
 import com.github.cauebf.shoppingcartapi.exceptions.ResourceNotFoundException;
 import com.github.cauebf.shoppingcartapi.model.Product;
 import com.github.cauebf.shoppingcartapi.request.AddProductRequest;
@@ -71,8 +72,8 @@ public class ProductController {
             ProductDto productDto = productService.convertToDto(newProduct);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("Product added!", productDto));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(), null));
+        } catch (AlreadyExistsException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse(e.getMessage(), null));
         }
     }
 

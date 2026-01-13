@@ -12,6 +12,7 @@ import com.github.cauebf.shoppingcartapi.model.Product;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> { // JpaRepository<Entity, primary key type>
     // JpaRepository has a lot of methods (save, delete, findById, findAll, etc.) and we can create our own methods
+    boolean existsByNameAndBrand(String name, String brand);
     
     @Query("SELECT p FROM Product p " +
            "WHERE (:name IS NULL OR p.name = :name) " +

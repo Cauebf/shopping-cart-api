@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.github.cauebf.shoppingcartapi.model.Product;
 import com.github.cauebf.shoppingcartapi.dto.ImageDto;
 import com.github.cauebf.shoppingcartapi.dto.ProductDto;
+import com.github.cauebf.shoppingcartapi.exceptions.AlreadyExistsException;
 import com.github.cauebf.shoppingcartapi.exceptions.ResourceNotFoundException;
 import com.github.cauebf.shoppingcartapi.model.Category;
 import com.github.cauebf.shoppingcartapi.model.Image;
@@ -47,6 +48,9 @@ public class ProductService implements IProductService {
 
     @Override
     public Product addProduct(AddProductRequest request) {
+        if(productRepository.existsByNameAndBrand(request.getName(), request.getBrand())) 
+            throw new AlreadyExistsException(request.getBrand() + " " + request.getName() + " already exists!");
+
         // check if the category is found in the DB
         // if yes, set it as the new product category, if not, save it as a new category
         Category category = Optional.ofNullable(categoryRepository.findByName(request.getCategory().getName()))
