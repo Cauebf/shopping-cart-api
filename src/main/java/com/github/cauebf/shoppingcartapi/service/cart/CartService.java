@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.github.cauebf.shoppingcartapi.dto.CartDto;
 import com.github.cauebf.shoppingcartapi.exceptions.ResourceNotFoundException;
 import com.github.cauebf.shoppingcartapi.model.Cart;
+import com.github.cauebf.shoppingcartapi.model.User;
 import com.github.cauebf.shoppingcartapi.repository.CartRepository;
 
 @Service
@@ -47,6 +48,17 @@ public class CartService implements ICartService {
         cartRepository.findById(id).ifPresentOrElse(cartRepository::delete, () -> { // if found, delete
             throw new ResourceNotFoundException("Cart not found!"); // if not found, throw an exception
         }); 
+    }
+
+    @Override
+    public Cart findOrCreateCartByUser(User user) {
+        return cartRepository.findByUserId(user.getId()) // find the cart by user id
+                .orElseGet(() -> {
+                    // if not found, create a new cart for the user and save it
+                    Cart cart = new Cart();
+                    cart.setUser(user);
+                    return cartRepository.save(cart);
+                });
     }
 
     @Override
