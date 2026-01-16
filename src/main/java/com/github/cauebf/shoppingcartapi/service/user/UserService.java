@@ -3,6 +3,11 @@ package com.github.cauebf.shoppingcartapi.service.user;
 import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.github.cauebf.shoppingcartapi.dto.UserDto;
@@ -17,11 +22,13 @@ import com.github.cauebf.shoppingcartapi.request.UpdateUserRequest;
 public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, ModelMapper modelMapper) {
+    public UserService(UserRepository userRepository, ModelMapper modelMapper, PasswordEncoder passwordEncoder) {
         // construtor dependency injection
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -41,7 +48,7 @@ public class UserService implements IUserService {
                     user.setFirstName(request.getFirstName());
                     user.setLastName(request.getLastName());
                     user.setEmail(request.getEmail());
-                    user.setPassword(request.getPassword());
+                    user.setPassword(passwordEncoder.encode(request.getPassword()));
 
                     return userRepository.save(user);
                 })
@@ -62,6 +69,24 @@ public class UserService implements IUserService {
         userRepository.findById(userId).ifPresentOrElse(userRepository::delete, () -> {
             throw new ResourceNotFoundException("User not found!");
         });
+    }
+
+    @Override
+    public User getAuthenticatedUser() {
+        // get the current authenticated user from the security context (set in AuthTokenFilter)
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // if the user is not authenticated, throw an exception
+        if (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
+            throw new AccessDeniedException("User is not authenticated");
+        }
+
+        // get the user's username (in this case, the email, defined in ShopUserDetails.getUsername())
+        String email = authentication.getName();
+
+        // get the user from the database
+        return Optional.ofNullable(userRepository.findByEmail(email))
+                .orElseThrow(() -> new ResourceNotFoundException("Authenticated user not found"));
     }
     
     @Override
