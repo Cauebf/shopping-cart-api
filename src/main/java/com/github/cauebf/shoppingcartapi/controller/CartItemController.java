@@ -2,6 +2,7 @@ package com.github.cauebf.shoppingcartapi.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -93,7 +94,7 @@ public class CartItemController {
     }
 
     @DeleteMapping
-    public ResponseEntity<ApiResponse> clearCart(@RequestParam Long cartId) {
+    public ResponseEntity<ApiResponse> clearCart() {
         try {
             User user = userService.getAuthenticatedUser();
             Cart cart = cartService.findOrCreateCartByUser(user);

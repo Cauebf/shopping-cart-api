@@ -31,9 +31,6 @@ public class ShopConfig {
     private final ShopUserDetailsService userDetailsService;
     private final JwtAuthEntryPoint authEntryPoint;
 
-    private static final List<String> SECURED_URLS = 
-            List.of("/api/v1/cart/**", "/api/v1/cart/items/**", "/api/v1/orders/**");
-
     public ShopConfig(ShopUserDetailsService userDetailsService, JwtAuthEntryPoint authEntryPoint, AuthTokenFilter authTokenFilter) {
         // construtor dependency injection
         this.userDetailsService = userDetailsService;
@@ -70,11 +67,10 @@ public class ShopConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(authEntryPoint)) // if not authenticated, call the jwtAuthEntryPoint
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // disable sessions (every request needs authentication token)
-                .authorizeHttpRequests(auth -> 
-                    auth.requestMatchers(SECURED_URLS.toArray(String[]::new)) // define the URLs that need authentication
-                        .authenticated()
-                        .anyRequest()
-                        .permitAll())
+                .authorizeHttpRequests(auth -> auth
+                    .requestMatchers("/api/v1/auth/**", "/api/v1/users").permitAll() // allow access to the login and register endpoints
+                    .anyRequest().authenticated() // all other requests need authentication
+                )
                 .authenticationProvider(daoAuthenticationProvider()) // especify the authentication provider
                 .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class) // add the AuthTokenFilter before the UsernamePasswordAuthenticationFilter
                 .build();

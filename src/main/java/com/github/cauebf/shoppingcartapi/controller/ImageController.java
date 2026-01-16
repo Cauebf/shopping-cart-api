@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,6 +49,7 @@ public class ImageController {
                 .body(resouce); // set the body of the response to the image bytes
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/upload") 
     public ResponseEntity<ApiResponse> saveImages(@RequestParam List<MultipartFile> files, @RequestParam Long productId) {
         try {
@@ -58,6 +60,7 @@ public class ImageController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/image/{imageId}")
     public ResponseEntity<ApiResponse> updateImage(@PathVariable Long imageId, @RequestBody MultipartFile file) {
         try {
@@ -73,6 +76,7 @@ public class ImageController {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("Update failed!", HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/image/{imageId}")
     public ResponseEntity<ApiResponse> deleteImage(@PathVariable Long imageId) {
         try {
