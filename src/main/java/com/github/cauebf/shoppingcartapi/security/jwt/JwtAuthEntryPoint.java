@@ -17,7 +17,7 @@ import tools.jackson.databind.ObjectMapper;
 @Component
 public class JwtAuthEntryPoint implements AuthenticationEntryPoint {
     // AuthenticationEntryPoint is an interface that is used to handle unauthenticated requests
-    // JwtAuthEntryPoint is responsible for returning a 401 response (Unauthorized) to the client when the user tries to access a protected resource without a valid token
+    // JwtAuthEntryPoint is responsible for returning a 401 response message to the client when the user tries to access a protected resource without a valid token
 
     @Override
     public void commence(
