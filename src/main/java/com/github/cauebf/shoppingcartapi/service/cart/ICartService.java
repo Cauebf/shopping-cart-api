@@ -6,7 +6,6 @@ import com.github.cauebf.shoppingcartapi.model.User;
 
 public interface ICartService {
     Cart getCart(Long id);
-    void clearCart(Long id);
     void deleteCart(Long id);
     Cart getCartByUserId(Long userId);
     Cart findOrCreateCartByUser(User user);

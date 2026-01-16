@@ -18,6 +18,7 @@ import com.github.cauebf.shoppingcartapi.model.OrderItem;
 import com.github.cauebf.shoppingcartapi.model.Product;
 import com.github.cauebf.shoppingcartapi.repository.OrderRepository;
 import com.github.cauebf.shoppingcartapi.repository.ProductRepository;
+import com.github.cauebf.shoppingcartapi.service.cart.ICartItemService;
 import com.github.cauebf.shoppingcartapi.service.cart.ICartService;
 
 @Service
@@ -26,18 +27,21 @@ public class OrderService implements IOrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final ICartService cartService;
+    private final ICartItemService cartItemService;
     private final ModelMapper modelMapper;
 
     public OrderService(
         OrderRepository orderRepository, 
         ProductRepository productRepository, 
         ICartService cartService, 
+        ICartItemService cartItemService,
         ModelMapper modelMapper
     ) {
         // construtor dependency injection
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
         this.cartService = cartService;
+        this.cartItemService = cartItemService;
         this.modelMapper = modelMapper;
     }
 
@@ -55,7 +59,7 @@ public class OrderService implements IOrderService {
         order.setTotalAmount(calculateTotalAmount(orderItems));
         Order savedOrder = orderRepository.save(order); // save the order to the db
 
-        cartService.clearCart(cart.getId()); // clear the cart
+        cartItemService.clearCart(cart.getId()); // clear the cart
         return convertToDto(savedOrder);
     }
 

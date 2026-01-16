@@ -23,7 +23,7 @@ import com.github.cauebf.shoppingcartapi.service.cart.ICartService;
 import com.github.cauebf.shoppingcartapi.service.user.IUserService;
 
 @RestController
-@RequestMapping("/carts/items")
+@RequestMapping("/cart/items")
 public class CartItemController {
     private final ICartItemService cartItemService;
     private final ICartService cartService;
@@ -37,9 +37,12 @@ public class CartItemController {
     }
 
     @GetMapping("/{productId}")
-    public ResponseEntity<ApiResponse> getCartItem(@RequestParam Long cartId, @PathVariable Long productId) {
+    public ResponseEntity<ApiResponse> getCartItem(@PathVariable Long productId) {
         try {
-            CartItem cartItem = cartItemService.getCartItem(cartId, productId);
+            User user = userService.getAuthenticatedUser();
+            Cart cart = cartService.findOrCreateCartByUser(user);
+
+            CartItem cartItem = cartItemService.getCartItem(cart.getId(), productId);
             CartItemDto cartItemDto = cartItemService.convertToDto(cartItem);
             
             return ResponseEntity.ok(new ApiResponse("Cart item found!", cartItemDto));
@@ -53,7 +56,7 @@ public class CartItemController {
     public ResponseEntity<ApiResponse> addItemToCart(@RequestParam Long productId, @RequestParam Integer quantity) {
         try {
             // get the user, if the user has no cart, create one
-            User user = userService.getUserById(1L); // TODO: replace with the actual user id
+            User user = userService.getAuthenticatedUser();
             Cart cart = cartService.findOrCreateCartByUser(user);
             
             cartItemService.addItemToCart(cart.getId(), productId, quantity);
@@ -64,11 +67,12 @@ public class CartItemController {
     }
 
     @PutMapping("/{productId}")
-    public ResponseEntity<ApiResponse> updateItemQuantity(@RequestParam Long cartId, 
-                                                      @PathVariable Long productId, 
-                                                      @RequestParam Integer quantity) {
+    public ResponseEntity<ApiResponse> updateItemQuantity(@PathVariable Long productId, @RequestParam Integer quantity) {
         try {
-            cartItemService.updateItemQuantity(cartId, productId, quantity);
+            User user = userService.getAuthenticatedUser();
+            Cart cart = cartService.findOrCreateCartByUser(user);
+
+            cartItemService.updateItemQuantity(cart.getId(), productId, quantity);
             return ResponseEntity.ok(new ApiResponse("Cart item updated successfully!", null));
         } catch (ResourceNotFoundException | IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(e.getMessage(), null));
@@ -76,10 +80,26 @@ public class CartItemController {
     }
 
     @DeleteMapping("/{productId}")
-    public ResponseEntity<ApiResponse> removeItemFromCart(@RequestParam Long cartId, @PathVariable Long productId) {
+    public ResponseEntity<ApiResponse> removeItemFromCart(@PathVariable Long productId) {
         try {
-            cartItemService.removeItemFromCart(cartId, productId);
+            User user = userService.getAuthenticatedUser();
+            Cart cart = cartService.findOrCreateCartByUser(user);
+
+            cartItemService.removeItemFromCart(cart.getId(), productId);
             return ResponseEntity.ok(new ApiResponse("Cart item removed successfully!", null));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
+        }
+    }
+
+    @DeleteMapping
+    public ResponseEntity<ApiResponse> clearCart(@RequestParam Long cartId) {
+        try {
+            User user = userService.getAuthenticatedUser();
+            Cart cart = cartService.findOrCreateCartByUser(user);
+
+            cartItemService.clearCart(cart.getId());
+            return ResponseEntity.ok(new ApiResponse("Cart cleared!", null));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
         }

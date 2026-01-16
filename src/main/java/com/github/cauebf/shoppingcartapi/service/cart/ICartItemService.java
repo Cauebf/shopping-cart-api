@@ -8,5 +8,6 @@ public interface ICartItemService {
     void removeItemFromCart(Long cartId, Long productId);
     CartItem getCartItem(Long cartId, Long productId);
     void updateItemQuantity(Long cartId, Long productId, int quantity);
+    void clearCart(Long id);
     CartItemDto convertToDto(CartItem cartItem);
 }

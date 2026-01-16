@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.github.cauebf.shoppingcartapi.dto.CartItemDto;
 import com.github.cauebf.shoppingcartapi.exceptions.ResourceNotFoundException;
@@ -101,6 +102,15 @@ public class CartItemService implements ICartItemService {
                 .orElseThrow(() -> new ResourceNotFoundException("Cart item not found!"));
 
         cart.getItems().remove(item); // remove the item from the cart
+        cart.recalculateTotal();
+        cartRepository.save(cart);
+    }
+
+    @Transactional // if something goes wrong, the transaction will be rolled back
+    @Override
+    public void clearCart(Long id) {
+        Cart cart = cartService.getCart(id);
+        cart.getItems().clear(); // clear the cart
         cart.recalculateTotal();
         cartRepository.save(cart);
     }

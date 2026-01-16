@@ -2,7 +2,6 @@ package com.github.cauebf.shoppingcartapi.service.cart;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.github.cauebf.shoppingcartapi.dto.CartDto;
 import com.github.cauebf.shoppingcartapi.exceptions.ResourceNotFoundException;
@@ -32,15 +31,6 @@ public class CartService implements ICartService {
     public Cart getCartByUserId(Long userId) {
         return cartRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found!"));
-    }
-
-    @Transactional // if something goes wrong, the transaction will be rolled back
-    @Override
-    public void clearCart(Long id) {
-        Cart cart = getCart(id);
-        cart.getItems().clear(); // clear the cart
-        cart.recalculateTotal();
-        cartRepository.save(cart);
     }
 
     @Override
