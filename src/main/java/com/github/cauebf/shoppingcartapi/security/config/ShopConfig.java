@@ -1,10 +1,9 @@
 package com.github.cauebf.shoppingcartapi.security.config;
 
-import java.util.List;
-
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -27,15 +26,13 @@ import com.github.cauebf.shoppingcartapi.security.user.ShopUserDetailsService;
 @EnableMethodSecurity(prePostEnabled = true) // enable method level security (e.g. @PreAuthorize)
 public class ShopConfig {
 
-    private final AuthTokenFilter authTokenFilter;
     private final ShopUserDetailsService userDetailsService;
     private final JwtAuthEntryPoint authEntryPoint;
 
-    public ShopConfig(ShopUserDetailsService userDetailsService, JwtAuthEntryPoint authEntryPoint, AuthTokenFilter authTokenFilter) {
+    public ShopConfig(ShopUserDetailsService userDetailsService, JwtAuthEntryPoint authEntryPoint) {
         // construtor dependency injection
         this.userDetailsService = userDetailsService;
         this.authEntryPoint = authEntryPoint;
-        this.authTokenFilter = authTokenFilter;
     }
 
     @Bean
@@ -61,6 +58,11 @@ public class ShopConfig {
     }
 
     @Bean
+    public AuthTokenFilter authTokenFilter() {
+        return new AuthTokenFilter();
+    }
+   
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         return http
@@ -68,11 +70,12 @@ public class ShopConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(authEntryPoint)) // if not authenticated, call the jwtAuthEntryPoint
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // disable sessions (every request needs authentication token)
                 .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/api/v1/auth/**", "/api/v1/users").permitAll() // allow access to the login and register endpoints
+                    .requestMatchers(HttpMethod.POST, "/auth/**").permitAll() // allow POST requests to /auth
+                    .requestMatchers(HttpMethod.POST, "/users").permitAll() // allow POST requests to /users
                     .anyRequest().authenticated() // all other requests need authentication
                 )
                 .authenticationProvider(daoAuthenticationProvider()) // especify the authentication provider
-                .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class) // add the AuthTokenFilter before the UsernamePasswordAuthenticationFilter
+                .addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class) // add the AuthTokenFilter before the UsernamePasswordAuthenticationFilter
                 .build();
     }
 }
