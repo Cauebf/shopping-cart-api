@@ -67,8 +67,11 @@ public class ShopConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(authEntryPoint)) // if not authenticated, call the jwtAuthEntryPoint
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // disable sessions (every request needs authentication token)
                 .authorizeHttpRequests(auth -> auth
-                    .requestMatchers(HttpMethod.POST, "/auth/**").permitAll() // allow POST requests to /auth
-                    .requestMatchers(HttpMethod.POST, "/users").permitAll() // allow POST requests to /users
+                    .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/users").permitAll() 
+                    .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/images/image/download/**").permitAll()
                     .anyRequest().authenticated() // all other requests need authentication
                 )
                 .authenticationProvider(daoAuthenticationProvider()) // especify the authentication provider
