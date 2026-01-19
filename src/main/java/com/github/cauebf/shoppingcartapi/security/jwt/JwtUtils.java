@@ -4,6 +4,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
@@ -23,7 +24,8 @@ import io.jsonwebtoken.security.SignatureException;
 @Component
 public class JwtUtils {
 
-    private String jwtSecret = "nZ9LZJ1G3m9g0F0YHhR4mQvZbZzY9Z8nJq5kZP5dXyM=";
+    @Value("${jwt.secret}")
+    private String jwtSecret;
     private int expirationTime = 3600000;
 
     public String generateTokenForUser(Authentication authentication) {

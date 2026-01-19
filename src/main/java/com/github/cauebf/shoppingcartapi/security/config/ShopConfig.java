@@ -26,11 +26,13 @@ import com.github.cauebf.shoppingcartapi.security.user.ShopUserDetailsService;
 @EnableMethodSecurity(prePostEnabled = true) // enable method level security (e.g. @PreAuthorize)
 public class ShopConfig {
 
+    private final AuthTokenFilter authTokenFilter;
     private final ShopUserDetailsService userDetailsService;
     private final JwtAuthEntryPoint authEntryPoint;
 
-    public ShopConfig(ShopUserDetailsService userDetailsService, JwtAuthEntryPoint authEntryPoint) {
+    public ShopConfig(AuthTokenFilter authTokenFilter, ShopUserDetailsService userDetailsService, JwtAuthEntryPoint authEntryPoint) {
         // construtor dependency injection
+        this.authTokenFilter = authTokenFilter;
         this.userDetailsService = userDetailsService;
         this.authEntryPoint = authEntryPoint;
     }
@@ -56,11 +58,6 @@ public class ShopConfig {
         authProvider.setPasswordEncoder(passwordEncoder()); // set the password encoder
         return authProvider;
     }
-
-    @Bean
-    public AuthTokenFilter authTokenFilter() {
-        return new AuthTokenFilter();
-    }
    
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -75,7 +72,7 @@ public class ShopConfig {
                     .anyRequest().authenticated() // all other requests need authentication
                 )
                 .authenticationProvider(daoAuthenticationProvider()) // especify the authentication provider
-                .addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class) // add the AuthTokenFilter before the UsernamePasswordAuthenticationFilter
+                .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class) // add the AuthTokenFilter before the UsernamePasswordAuthenticationFilter
                 .build();
     }
 }
