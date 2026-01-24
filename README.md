@@ -6,7 +6,6 @@ Built with **Java**, **Spring Boot**, **Spring Security**, **JWT authentication*
 
 This project was designed for learning, real-world practice, and as a solid foundation for scalable backend systems.
 
-
 ## 📌 Table of Contents
 
 - [Shopping Cart API 🛒🛍️](#shopping-cart-api-️)
@@ -23,6 +22,10 @@ This project was designed for learning, real-world practice, and as a solid foun
     - [1️⃣ Clone the repository](#1️⃣-clone-the-repository)
     - [2️⃣ Configure environment variables](#2️⃣-configure-environment-variables)
     - [3️⃣ Run the application](#3️⃣-run-the-application)
+    - [🐳 Run with Docker](#-run-with-docker)
+      - [Environment Configuration](#environment-configuration)
+      - [Using Docker Compose (Recommended)](#using-docker-compose-recommended)
+      - [Using Docker Only](#using-docker-only)
   - [📄 API Endpoints](#-api-endpoints)
     - [🔑 Authentication](#-authentication)
     - [👤 Users](#-users)
@@ -41,28 +44,28 @@ The **Shopping Cart API** provides a complete backend solution for an eCommerce 
 
 It supports:
 
-* User registration and authentication
-* Role-based access control (USER / ADMIN)
-* Product and category management
-* Shopping cart and cart items
-* Order placement and retrieval
-* Image upload and download
+- User registration and authentication
+- Role-based access control (USER / ADMIN)
+- Product and category management
+- Shopping cart and cart items
+- Order placement and retrieval
+- Image upload and download
 
 The API is **stateless**, secured with **JWT**, and designed following REST principles.
 
 ## ⚙️ Features
 
-* ✅ **JWT-based authentication** (stateless)
-* 🔐 **Role-based authorization**
-* 👤 **User management** (admin-controlled)
-* 🛒 **Shopping cart** per authenticated user
-* 📦 **Cart items** management (add, update, remove)
-* 🧾 **Order creation and history**
-* 🏷️ **Product & category management**
-* 🖼️ **Image upload/download**
-* 🧠 **DTO mapping** with ModelMapper
-* 🧪 **Centralized exception handling**
-* 🧱 Clean, layered architecture (Controller → Service → Repository)
+- ✅ **JWT-based authentication** (stateless)
+- 🔐 **Role-based authorization**
+- 👤 **User management** (admin-controlled)
+- 🛒 **Shopping cart** per authenticated user
+- 📦 **Cart items** management (add, update, remove)
+- 🧾 **Order creation and history**
+- 🏷️ **Product & category management**
+- 🖼️ **Image upload/download**
+- 🧠 **DTO mapping** with ModelMapper
+- 🧪 **Centralized exception handling**
+- 🧱 Clean, layered architecture (Controller → Service → Repository)
 
 ## 🔐 Authentication & Authorization
 
@@ -70,9 +73,9 @@ The API uses **Spring Security + JWT**.
 
 ### Authentication
 
-* Users authenticate via `/auth/login`
-* A JWT token is returned
-* The token must be sent in the `Authorization` header:
+- Users authenticate via `/auth/login`
+- A JWT token is returned
+- The token must be sent in the `Authorization` header:
 
 ```http
 Authorization: Bearer <JWT_TOKEN>
@@ -80,22 +83,23 @@ Authorization: Bearer <JWT_TOKEN>
 
 ### Authorization
 
-* **USER** → can manage their own cart and orders
-* **ADMIN** → can manage users, products, categories, images, and orders
+- **USER** → can manage their own cart and orders
+- **ADMIN** → can manage users, products, categories, images, and orders
 
 ## 💻 Technologies Used
 
-* **Java 21** — Modern Java features and long-term support
-* **Spring Boot 4** — Application framework
-* **Spring Web MVC** — REST API development
-* **Spring Security** — Authentication & authorization
-* **JWT (jjwt)** — Stateless authentication
-* **Spring Data JPA / Hibernate** — ORM and persistence
-* **MySQL** — Relational database
-* **ModelMapper** — Entity ↔ DTO mapping
-* **Bean Validation (Jakarta Validation)** — Request validation
-* **Lombok** — Reduces boilerplate code
-* **Maven** — Dependency management & build tool
+- **Java 21** — Modern Java features and long-term support
+- **Spring Boot 4** — Application framework
+- **Spring Web MVC** — REST API development
+- **Spring Security** — Authentication & authorization
+- **JWT (jjwt)** — Stateless authentication
+- **Spring Data JPA / Hibernate** — ORM and persistence
+- **MySQL** — Relational database
+- **ModelMapper** — Entity ↔ DTO mapping
+- **Bean Validation (Jakarta Validation)** — Request validation
+- **Lombok** — Reduces boilerplate code
+- **Maven** — Dependency management & build tool
+- **Docker & Docker Compose** — Containerization and service orchestration
 
 ## 🗝️ Key Takeaways
 
@@ -125,6 +129,8 @@ shopping-cart-api/
 ├── src/main/resources/
 │   └── application.properties
 │   └── ...
+├── docker-compose.yml
+├── Dockerfile
 ├── pom.xml
 └── README.md
 ```
@@ -161,62 +167,139 @@ The API will run at:
 http://localhost:8080
 ```
 
+### 🐳 Run with Docker
+
+The project includes Docker and Docker Compose configuration for easy deployment.
+
+#### Environment Configuration
+
+Before running with Docker, create a `.env` file in the project root based on `.env.example`:
+
+```bash
+cp .env.example .env
+```
+
+Then configure the environment variables in `.env`:
+
+```env
+# MySQL Configuration
+MYSQL_ROOT_PASSWORD=root
+MYSQL_DATABASE=shopping_cart_db
+MYSQL_USER=cart_user
+MYSQL_PASSWORD=cart_password
+
+# Database URL (for Spring Boot)
+DB_URL=jdbc:mysql://mysql:3306/shopping_cart_db
+
+# Application Configuration
+JWT_SECRET=yoursupersecretjwtkeychangethisinproduction
+```
+
+**⚠️ Important:** Change the `JWT_SECRET` value to a strong, random string in production environments!
+
+#### Using Docker Compose (Recommended)
+
+Docker Compose will orchestrate both the MySQL database and the Spring Boot application:
+
+```bash
+docker compose up --build
+```
+
+This command will:
+
+- Build the application image
+- Start MySQL database container
+- Start the application container
+- Create a shared network for inter-container communication
+
+The API will be available at:
+
+```
+http://localhost:8080
+```
+
+The MySQL database will be accessible at:
+
+- Host: `localhost:3306`
+- Username: `${MYSQL_USER}`
+- Password: `${MYSQL_PASSWORD}`
+- Database: `${MYSQL_DATABASE}`
+
+#### Using Docker Only
+
+Build the Docker image:
+
+```bash
+docker build -t shopping-cart-api:latest .
+```
+
+Run the container (requires external MySQL):
+
+```bash
+docker run -p 8080:8080 \
+  -e DB_URL=jdbc:mysql://host.docker.internal:3306/shopping_cart_db \
+  -e DB_USER=root \
+  -e DB_PASSWORD=yourpassword \
+  -e JWT_SECRET=yoursecretkey \
+  shopping-cart-api:latest
+```
+
 ## 📄 API Endpoints
 
 ### 🔑 Authentication
 
-* `POST /auth/login` → Authenticate user and return JWT
+- `POST /auth/login` → Authenticate user and return JWT
 
 ### 👤 Users
 
-* `POST /users` → Register new user
-* `GET /users/{id}` → Get user by ID (**ADMIN**)
-* `PUT /users/{id}` → Update user (**ADMIN**)
-* `DELETE /users/{id}` → Delete user (**ADMIN**)
+- `POST /users` → Register new user
+- `GET /users/{id}` → Get user by ID (**ADMIN**)
+- `PUT /users/{id}` → Update user (**ADMIN**)
+- `DELETE /users/{id}` → Delete user (**ADMIN**)
 
 ### 🛒 Cart
 
-* `GET /cart/me` → Get authenticated user's cart
-* `DELETE /cart/{id}` → Delete cart (**ADMIN**)
+- `GET /cart/me` → Get authenticated user's cart
+- `DELETE /cart/{id}` → Delete cart (**ADMIN**)
 
 ### 🧩 Cart Items
 
-* `GET /cart/items/{productId}` → Get cart item
-* `POST /cart/items` → Add item to cart
-* `PUT /cart/items/{productId}` → Update item quantity
-* `DELETE /cart/items/{productId}` → Remove item
-* `DELETE /cart/items` → Clear cart
+- `GET /cart/items/{productId}` → Get cart item
+- `POST /cart/items` → Add item to cart
+- `PUT /cart/items/{productId}` → Update item quantity
+- `DELETE /cart/items/{productId}` → Remove item
+- `DELETE /cart/items` → Clear cart
 
 ### 📦 Orders
 
-* `POST /orders` → Place order
-* `GET /orders` → Get authenticated user's orders
-* `GET /orders/{orderId}` → Get order by ID (**ADMIN**)
+- `POST /orders` → Place order
+- `GET /orders` → Get authenticated user's orders
+- `GET /orders/{orderId}` → Get order by ID (**ADMIN**)
 
 ### 🏷️ Categories
 
-* `GET /categories`
-* `GET /categories/{id}`
-* `GET /categories/name/{name}`
-* `POST /categories` (**ADMIN**)
-* `PUT /categories/{id}` (**ADMIN**)
-* `DELETE /categories/{id}` (**ADMIN**)
+- `GET /categories`
+- `GET /categories/{id}`
+- `GET /categories/name/{name}`
+- `POST /categories` (**ADMIN**)
+- `PUT /categories/{id}` (**ADMIN**)
+- `DELETE /categories/{id}` (**ADMIN**)
 
 ### 🛍️ Products
 
-* `GET /products`
-* `GET /products/{id}`
-* `POST /products` (**ADMIN**)
-* `PUT /products/{id}` (**ADMIN**)
-* `DELETE /products/{id}` (**ADMIN**)
-* `GET /products/count`
+- `GET /products`
+- `GET /products/{id}`
+- `POST /products` (**ADMIN**)
+- `PUT /products/{id}` (**ADMIN**)
+- `DELETE /products/{id}` (**ADMIN**)
+- `GET /products/count`
 
 ### 🖼️ Images
 
-* `GET /images/image/download/{imageId}`
-* `POST /images/upload` (**ADMIN**)
-* `PUT /images/image/{imageId}` (**ADMIN**)
-* `DELETE /images/image/{imageId}` (**ADMIN**)
+- `GET /images/image/download/{imageId}`
+- `POST /images/upload` (**ADMIN**)
+- `PUT /images/image/{imageId}` (**ADMIN**)
+- `DELETE /images/image/{imageId}` (**ADMIN**)
 
 ## 🤝 Contributing
 
